@@ -107,15 +107,15 @@ def relu_backward(dout, X):
     Returns:
     - dX: A numpy array, derivative with respect to X
     """
-    dX = None
+    #dX = None
     """
     TODO: Implement the ReLU backward pass. Store your result in out.
     """
     ###########################################################################
     #                           BEGIN OF YOUR CODE                            #
     ###########################################################################
-
-
+    dout[X<=0] = 0
+    dX = dout.copy()
     ###########################################################################
     #                            END OF YOUR CODE                             #
     ###########################################################################
