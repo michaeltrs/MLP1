@@ -15,8 +15,8 @@ datapath = datadir = ('/home/mat10/Documents/MSc Machine Learning/395-Machine Le
            'CW2/assignment2_advanced/datasets/cifar-10-batches-py')
 data = get_CIFAR10_data(datapath)
 
-hidden_dims = [1024, 512, 256]
-net = FullyConnectedNet(hidden_dims, num_classes=10, dropout=0.5, reg=0.5, seed=0)
+hidden_dims = [512, 256]
+net = FullyConnectedNet(hidden_dims, num_classes=10, dropout=0., reg=0., seed=0)
 
 solver = Solver(net,
                 data,
@@ -27,6 +27,7 @@ solver = Solver(net,
                 num_epochs=10,
                 batch_size=100,
                 print_every=10000)
+
 solver.train()
 
 make_plots = False
