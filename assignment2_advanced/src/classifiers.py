@@ -25,7 +25,7 @@ def softmax(logits, y):
     ###########################################################################
     #                           BEGIN OF YOUR CODE                            #
     ###########################################################################
-    K = np.exp(-logits.shape[1] - 1)
+    K = np.exp(-logits.shape[1])
     N, C = logits.shape
 
     soft_logits = np.exp(logits + np.log(K)) / np.exp(logits + np.log(K)).sum(axis=1)[:, None]

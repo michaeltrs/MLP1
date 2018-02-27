@@ -17,20 +17,21 @@ data = get_CIFAR10_data(datapath, num_training=50, num_validation=100, num_test=
                      subtract_mean=True)
 
 hidden_dims = [1024, 512]
-net = FullyConnectedNet(hidden_dims, num_classes=10, dropout=0., reg=0.0)
+net = FullyConnectedNet(hidden_dims, num_classes=10, dropout=0., reg=0.0, seed=0)
 
 solver = Solver(net,
                 data,
                 update_rule='sgd',
                 optim_config={'learning_rate': 1e-3,
-                              'momentum': 0.},
+                              'momentum': 0.5},
                 lr_decay=0.95,
                 num_epochs=20,
                 batch_size=10,
                 print_every=100)
 solver.train()
 
-if False:
+make_plots = False
+if make_plots:
     import matplotlib.pyplot as plt
     # declare model and solver and train the model
     # model = [...]
