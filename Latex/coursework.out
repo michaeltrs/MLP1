@@ -1,0 +1,20 @@
+\BOOKMARK [1][]{section.1}{1 Linear and Relu layers}{}% 1
+\BOOKMARK [2][]{subsection.2}{1.1 Linear forward pass}{section.1}% 2
+\BOOKMARK [2][]{subsection.4}{1.2 Linear backward pass}{section.1}% 3
+\BOOKMARK [2][]{subsection.8}{1.3 Relu forward pass}{section.1}% 4
+\BOOKMARK [2][]{subsection.10}{1.4 Relu backward pass}{section.1}% 5
+\BOOKMARK [1][]{section.11}{2 Dropout}{}% 6
+\BOOKMARK [2][]{subsection.12}{2.1 Dropout forward pass}{section.11}% 7
+\BOOKMARK [2][]{subsection.13}{2.2 Dropout backward pass}{section.11}% 8
+\BOOKMARK [1][]{section.14}{3 Softmax}{}% 9
+\BOOKMARK [2][]{subsection.16}{3.1 Gradient of softmax}{section.14}% 10
+\BOOKMARK [1][]{section.17}{4 Fully connected Network}{}% 11
+\BOOKMARK [2][]{subsection.18}{4.1 Architecture}{section.17}% 12
+\BOOKMARK [2][]{subsection.19}{4.2 L2-regularization}{section.17}% 13
+\BOOKMARK [2][]{subsection.20}{4.3 Overfitting}{section.17}% 14
+\BOOKMARK [2][]{subsection.23}{4.4 Question 5}{section.17}% 15
+\BOOKMARK [2][]{subsection.24}{4.5 Question 6}{section.17}% 16
+\BOOKMARK [1][]{section.26}{5 A1}{}% 17
+\BOOKMARK [1][]{section.27}{6 A2}{}% 18
+\BOOKMARK [1][]{section.28}{7 Instructions for executing}{}% 19
+\BOOKMARK [1][]{section.29}{8 References}{}% 20
