@@ -164,27 +164,25 @@ Use L2 and compare the performance with dropout.
 Optimise the topology of the network, i.e. the number of hidden layers and the number of neurons in each hidden layer.
 
 \subsection{Question 6}
-For this task we used Tensorflow and built three different models. The first model we built is ha sthe following layers:
+For this task we used Tensorflow. The CNN model we submit consists of 4 blocks of 3 convolutional layers (3x3 kernels) followed by max pooling, which are then follwed by 2 fully connected layers. We used small 3x3 filters inspired by the VGG architecture that has performed very well in recent years. The stride and padding are selected so that the convolution layer does not modify the size of the features. After each pooling layer we reduce the width and height of the features by a half and double the number of features, effectively halving the total dimensions. We selected a deep convolutional architecture that allows for relatively small size of fully connected layers at the end. The architecture is described in greater detail below:  
 
 \begin{itemize}
 \item input layer of dimensions Nx48x48x1 (batch size x image width x image height x number of channels)
-\item convolutional layer 1, 16x5x5x1 filters (number of filters x kernel width x kernel height x number of channels) at stride 1 and 2 zero padding at all dimensions, followed by ReLu activation. The 5x5 filters were chosen as a commonly used filter type and the stride and padding were selected so that the convolution layer does not modify the size of the features
-\item max pool layer of size 2x2 (width x height) at stride 2 that performs dimensionality reduction. After this step the each feature's dimensions are halved leading to a tensor of dimensions Nx24x24x16 (batch size x image width x image height x number of features)
-\item convolutional layer 2, 32x5x5x16 filters (number of filters x kernel width x kernel height x number of channels) at stride 1 and 2 zero padding at all dimensions, followed by ReLu activation. The 5x5 filters were chosen as a commonly used filter type and the stride and padding were selected so that the convolution layer does not modify the size of the features
-\item max pool layer of size 2x2 (width x height) at stride 2 that performs dimensionality reduction. After this step the each feature's dimensions are halved leading to a tensor of dimensions Nx12x12x32 (batch size x image width x image height x number of features). This  layer is reshaped to a vector of dimension 4608 and dropout is applied
-\item fully connected layer with 1024 nodes and dropout
+\item 3 convolutional layers with 32x3x3x1 filters (number of filters x kernel width x kernel height x number of channels) at stride 1 and 1 zero padding at all dimensions, followed by ReLu activation.  Max pool layer of size 2x2 (width x height) at stride 2 that performs dimensionality reduction. After this step each feature's dimensions are halved leading to a tensor of dimensions Nx24x24x32 (batch size x image width x image height x number of features)
+\item 3 convolutional layers with 64x3x3x1 filters at stride 1 and 1 zero padding at all dimensions, followed by ReLu activation. Max pool layer of size 2x2 (width x height) at stride 2. After this step each feature's dimensions are Nx12x12x64 
+\item 3 convolutional layers with 128x3x3x1 filters at stride 1 and 1 zero padding at all dimensions, followed by ReLu activation. Max pool layer of size 2x2 (width x height) at stride 2. After this step each feature's dimensions are Nx6x6x128 
+\item 3 convolutional layers with 256x3x3x1 filters at stride 1 and 1 zero padding at all dimensions, followed by ReLu activation. Max pool layer of size 2x2 (width x height) at stride 2. After this step each feature's dimensions are Nx3x3x256. This  layer is reshaped to a vector of dimension 2034 and dropout with probability of keeping a node 0.6 (dropout 0.4) is applied
+\item fully connected layer with 512 nodes and dropout 0.4
+\item fully connected layer with 128 nodes and dropout 0.4
 \item output layer of dimension 7 as this is the number of classes we want to predict
 \end{itemize}
 
-The other two networks we used are variants of ResNet presnted in [1], [2], specifically the 50-layer and the 101-layer bottleneck networks. Residual networks are one of the most significant advances in terms of convolutional neural network architecture over the last decade. They use what the authors call skip connections between layers that pass identity mappings between the layers they connect. This is shown in Fig.\ref{fig:skip_connections} below. As a result the convolutional layers between skip connections have to model the residual function which is an easier task for the model. This architecture option results in more efficient backpropagation and the capacity to train far deeper models that was though achievable before.   
+Taking advantage of the Tensorflow implementations, we used the Adam optimizer with a learning rate of $0.005$ and default parameters $beta1=0.9$ $beta2=0.999$. Adam was presented in [4] and is a first-order gradient-based optimization that includes adaptive momentum and learning rates. \\
 
-\begin{figure}[H]
-\centering % this centers the figure
-\includegraphics[width = 0.6\hsize]{./figures/skip_connections.png} % this includes the figure and specifies that it should span 0.7 times the horizontal size of the page
-\caption{Residual networks building blocks. taken from [1]} % caption of the figure
-% with a $stepsize$ $0.06$ and starting point $[1, -1]^T$
-\label{fig:skip_connections} % a label. When we refer to this label from the text, the figure number is included automatically
-\end{figure}
+
+The other two networks we used are variants of ResNet presnted in [1], [2], specifically the 50-layer and the 101-layer bottleneck networks. Residual networks are one of the most significant advances in terms of convolutional neural network architecture over the last decade. They use what the authors call skip connections between layers that pass identity mappings between the layers they connect. As a result the convolutional layers between skip connections have to model the residual function which is an easier task for the model. This architecture option results in more efficient backpropagation and the capacity to train far deeper models that was though achievable before. Our residual networks perfrormed better however due to size limitations we were not able to submit a trained model. 
+
+
 
 \newpage
 \section{A1}
@@ -218,6 +216,8 @@ All code was written in Python3. All scripts were tested and run in the DOC Lab 
     Identity Mappings in Deep Residual Networks. arXiv: 1603.05027
     
 [3] Wolpert, David (1996), "The Lack of A Priori Distinctions between Learning Algorithms", Neural Computation, pp. 1341-1390
+
+[4] Diederik P. Kingma, Jimmy Ba, " Adam: A Method for Stochastic Optimization", arXiv:1412.6980
 \end{verbatim}
 
 
