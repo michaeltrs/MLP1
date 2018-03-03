@@ -103,8 +103,23 @@ where, D is the number of classes and $y_i \in \mathbb{R}^D$ is a vector with th
 
 
 \subsection{Gradient of softmax}
-MIKE
-\section{Fully connected Network}
+For the combination of softmax and the negative log likelihood cost function we use, for a label $l \in \R^{D}$ we have the following:
+
+\begin{align*}
+L &= - \sum_j l_j \log \sigma_j
+\end{align*}
+
+\begin{align*}
+\frac{\partial \sigma_j}{\partial y_j} &= \frac{\exp y_j \exp \sum_k y_k - (\exp y_j)^2}{(\sum_k \exp y_k)^2}= \sigma_j (1 - \sigma_j)\\
+\\
+\frac{\partial \sigma_j}{\partial y_i} &= \frac{-\exp y_j \exp y_i}{(\sum_k \exp y_k)^2}= -\sigma_j \sigma_i, \quad \forall i \neq j
+\end{align*}
+
+\begin{align*}
+\frac{\partial L}{\partial y_i} &= -\frac{\partial l_i \sigma_i + \sum_{j \neq i}l_j \log \sigma_j}{\partial y_i}\\
+&= - l_i \frac{1}{\sigma_i} (1-\sigma_i) \sigma_i + \sum_{j \neq i} l_j \frac{1}{\sigma_j} \sigma_j \sigma_i \\
+&= \sigma_i \sum_j l_j - l_i = \sigma_i - l_i
+\end{align*}\section{Fully connected Network}
 \subsection{Architecture}
 \subsection{L2-regularization}
 
