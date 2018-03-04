@@ -58,12 +58,7 @@ Finally, the gradient with respect to the input X:
 dX = \frac{\partial L}{\partial X} = \frac{\partial L}{\partial y} \times \frac{\partial y}{\partial X} = \frac{\partial L}{\partial y} \times W = dout \times W
 \end{align}
 
-The dimensions of the gradients are the following:
-\begin{itemize}
-\item $dw \in \mathbb{R}^{D \times B}$
-\item $db \in \mathbb{R}^{N \times B}$
-\item $dX \in \mathbb{R}^{N \times D}$
-\end{itemize}
+The dimensions of the gradients are: $dw \in \mathbb{R}^{D \times B}$, $db \in \mathbb{R}^{N \times B}$ and $dX \in \mathbb{R}^{N \times D}$
 
 \subsection{Relu forward pass}
 
@@ -86,7 +81,6 @@ To perform the dropout forward pass, we create a matrix called $mask$ which is o
 \subsection{Dropout backward pass}
 
 For the backward pass, we perform the same operation as for the forward pass in the opposite direction. We multiply the scaling factor, with the mask (the same as before!) and with the derivatives from previous layers which is an input in the functions. This is during the training phase. In the testing phase, the derivatives simply pass through, without a mask. 
-
 
 
 \section{Softmax}
@@ -119,21 +113,19 @@ L &= - \sum_j l_j \log \sigma_j
 \frac{\partial L}{\partial y_i} &= -\frac{\partial l_i \sigma_i + \sum_{j \neq i}l_j \log \sigma_j}{\partial y_i}\\
 &= - l_i \frac{1}{\sigma_i} (1-\sigma_i) \sigma_i + \sum_{j \neq i} l_j \frac{1}{\sigma_j} \sigma_j \sigma_i \\
 &= \sigma_i \sum_j l_j - l_i = \sigma_i - l_i
-\end{align*}\section{Fully connected Network}
-\subsection{Architecture}
-\subsection{L2-regularization}
+\end{align*}
+\section{Question 4}
 
-\subsection{Overfitting}
-For the overfitting task we selected the top 50 images and label from CIFAR10 and used just those to fit a model. Since the objective was to fit the training data as good as possible with no consideration of generalization capabilities of our network we had the following strategy:
+For the overfitting task we selected the top 50 images and labels from CIFAR10 and used just those to fit a model. Since the objective was to fit the training data as good as possible with no consideration of generalization capabilities of our network we had the following strategy:
 \begin{itemize}
 \item use a network with many nodes in the hidden layers. We selected a network with two hidden layers with 1024 and 512 nodes respectively
 \item we did not apply any type of regularization as this would penalize the complexity of the model
 \end{itemize}
 
-The selected model achieves $100\%$ accuracy over the training set at the sixth epoch as can be shown in Fig.\ref{fig:overfit} below.
+The selected model achieves $100\%$ accuracy over the training set at the sixth epoch as can be shown in Fig \ref{fig:overfit} below.
 \\
 
-To get $50\%$ accuracy over the validation set, we selected a network with two hidden layers, 512 and 256 nodes per respective layer. We didn't use dropout, but we did use a $0.2$ L2 regularization multiplier. The model achieved $>50\%$ over the validation set after 4 epochs as can be seen in Fig.\ref{fig:cifar_2layer} below. 
+To get $50\%$ accuracy over the validation set, we selected a network with two hidden layers, 512 and 256 nodes per respective layer. We didn't use dropout, but we did use a $0.2$ L2 regularization multiplier. The model achieved $>50\%$ over the validation set after 4 epochs as can be seen in Fig \ref{fig:cifar_2layer} below. 
 
 \begin{figure}[H]
 \centering % this centers the figure
@@ -151,20 +143,182 @@ To get $50\%$ accuracy over the validation set, we selected a network with two h
 \label{fig:cifar_2layer} % a label. When we refer to this label from the text, the figure number is included automatically
 \end{figure}
 
-\subsection{Question 5}
-Select a reasonable network architecture as starting point and explain the motivation to choose so. 
-Define a stopping criterion and a momentum and learning rate update schedule. 
-You needto apply the stopping criterion to the solver (src/utils/solver.py).
-Optimise the learning rate (disable regularisation). 
-Explain how you found a good initial valuefor learning rate. 
-Include the plot for training and validation loss and report training and vali-dation classification error.
-Use dropout and report if there is any improvement in the validation performance.
-You have implemented dropout and L2 as ways of regularisation. 
-Use L2 and compare the performance with dropout.
-Optimise the topology of the network, i.e. the number of hidden layers and the number of neurons in each hidden layer.
+\section{Hyper-parameter Optimization}
 
-\subsection{Question 6}
-For this task we used Tensorflow. The CNN model we submit consists of 4 blocks of 3 convolutional layers (3x3 kernels) followed by max pooling, which are then follwed by 2 fully connected layers. We used small 3x3 filters inspired by the VGG architecture that has performed very well in recent years. The stride and padding are selected so that the convolution layer does not modify the size of the features. After each pooling layer we reduce the width and height of the features by a half and double the number of features, effectively halving the total dimensions. We selected a deep convolutional architecture that allows for relatively small size of fully connected layers at the end. The architecture is described in greater detail below:  
+For an initial model architecture we have decided to use 2 hidden layers. That choice was made because:
+(1) any single hidden layer feed-forward neural network is proven to be a universal function approximator for a large enough number of hidden units so in theory a single hidden layer network is enough to represent the function we want to find. In practice, a signle hidden layer network may require up to an exponential (to the input) number of hidden units and deep networks can approximate the same function with fewer parameters. Our problem is classifying human emotion which is very likely a complicated function that can benefit from multiple hidden layers. For all things equal simpler is better and less computation and complication are easier to manage. For that reason we decided not to use many hidden layers at the beginning. In addition, a two layer neural network was used in the CIFAR dataset achieving classification scores above 50\%. The CIFAR dataset has a comparable number of input units to FER2013 so using an NN of similar size seems like a good starting point.
+
+In terms of the activation units for the hidden layers, we are using rectified linear units (ReLu). Networks using ReLu allow more efficient back propagation and have been proven to outperform other networks with other activation functions. For that reason we will not be experimenting with different activation functions. For the output layer alone we are using a softmax layer which generalizes sigmoid activations to multiple output units and is ideal for the multi class classification problem at hand.
+
+In general we want to reduce the learning rate as time progresses and we are reaching the local minimum. We use the default learning rate decay update schedule, reducing the learning rate by a given factor after each epoch, which satisfies this requirement and is simple enough.
+
+
+The \textbf{stopping criterion} we choose is early stopping, that is to stop training if the validation set accuracy has not increased over a number of 10 consecutive training epochs.
+
+
+To optimize the hyper-parameters of the neural network, we used a 2 layer network configuration with \textbf{512 and 256 neurons} in the first and second hidden layer respectively. To train the network, we used \textbf{stochastic gradient descent with momentum 0.9} and a \textbf{batch size of 100}, since it seemed to provide the best compromise between training time and validation performance. Finally, we used \textbf{50 epochs}, but in many cases the training stopped earlier due to the stopping criterion. 
+\newline
+
+For the optimization of each parameter, we use a methodology of fixing all other parameters, and optimizing only a single one at a time by training the network using different values of the parameter.
+\subsection{Learning rate optimization}
+
+To optimize the learning rate we trained the network with the configuration as described above  using 4 different learning rates and observed the training and validation accuracy. For this optimization, we did not include L2 regularization or dropout. In addition, we did not have any rate decay between epochs.
+
+
+\begin{table}[!htbp]
+\centering
+\label{my-label}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textit{\textbf{Learning rate}} & \multicolumn{1}{l|}{\textit{\textbf{Validation Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Train Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Minimum loss achieved}}} \\ \hline
+0.0001                          & 40.28                                                           & 51.1                                                       & 1.1770                                                       \\ \hline
+0.001                           & 42.09                                                           & 79.1                                                       & 0.4454                                                       \\ \hline
+0.01                            & 45.08                                                           & 98.0                                                       & 0.0069                                                       \\ \hline
+0.1                             & 26.90                                                           & 27.5                                                       & 1.5881                                                       \\ \hline
+\end{tabular}
+\caption{Learning rate optimization}
+\label{Learning rate optimization}
+\end{table}
+
+As it is shown from table \ref{Learning rate optimization}, the best performing model was achieved with a learning rate of $0.01$, with a validation accuracy of 45.08\%.
+
+\begin{figure}[!htbp]
+\centering % this centers the figure
+\includegraphics[width = 1\hsize]{./figures/l_rate_0_01.png} % this includes the figure and specifies that it should span 0.7 times the horizontal size of the page
+\caption{Learning rate: 0.01. \textbf{Top}: Training loss vs number of iterations, \textbf{Bottom}: Training and Validation accuracy vs epochs} % caption of the figure
+\label{lrate0_01}
+\end{figure}
+
+Figure \ref{lrate0_01} shows the training and validation accuracy vs the number of epochs, as well as the training loss for learning rate 0.01.
+
+\subsection{Dropout optimization}
+
+Using the optimized learning rate from the previous section, 0.01, we trained the network once again fixing all parameters except the probability of dropout. We tested four probabilities of dropout 0.01, 0.02, 0.05 and 0.1. 
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textit{\textbf{Dropout}} & \multicolumn{1}{l|}{\textit{\textbf{Validation Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Train Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Minimum loss achieved}}} \\ \hline
+0.01                      & 43.83                                                           & 94.3                                                       & 0.021                                                        \\ \hline
+0.02                      & 43.97                                                           & 93.9                                                       & 0.055                                                        \\ \hline
+0.05                      & 42.19                                                           & 81.6                                                       & 0.296                                                        \\ \hline
+0.1                       & 41.64                                                           & 81.4                                                       & 0.286                                                        \\ \hline
+\end{tabular}
+\caption{Results for different dropout probabilities}
+\label{dropout}
+\end{table}
+
+We observe from table \ref{dropout} that a dropout rate of 1-2\% seem to perform the best on the validation data. In the next section, we compare dropout with l2-regularization.
+
+\begin{figure}[!htbp]
+\centering % this centers the figure
+\includegraphics[width = 0.8\hsize]{./figures/drop_0_01.png} % this includes the figure and specifies that it should span 0.7 times the horizontal size of the page
+\caption{Dropout: 0.02. \textbf{Top}: Training loss vs number of iterations, \textbf{Bottom}: Training and Validation accuracy vs epochs} % caption of the figure
+\label{dropout0_01}
+\end{figure}
+
+\subsection{L2 regularization comparison with dropout}
+
+To test L2 regularization, we set dropout to 0 and fix all other parameters once again. The results are shown in table \ref{regularization}.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textit{\textbf{Regularization}} & \multicolumn{1}{l|}{\textit{\textbf{Validation Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Train Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Minimum loss achieved}}} \\ \hline
+0.001                            & 44.28                                                           & 97.0                                                       & 0.1275                                                       \\ \hline
+0.01                             & 45.43                                                           & 97.0                                                       & 0.4844                                                       \\ \hline
+0.1                              & 43.87                                                           & 61.9                                                       & 1.1971                                                       \\ \hline
+1                                & 35.29                                                           & 35.8                                                       & 1.5851                                                       \\ \hline
+\end{tabular}
+\caption{Results for different regularization parameters}
+\label{regularization}
+\end{table}
+
+L2 regularization and dropout serve the same purpose, to prevent over-fitting of the model. It is observable from tables \ref{dropout0_01} and \ref{regularization} that as we increase the dropout parameter or the regularization parameter, training accuracy drops, since the model is not "free" to use the parameters that best fit the training data. We observe the best validation performance with regularization set at 0.01 (45.45\%) while for dropout of 0.02 the best validation performance is 43.97\%. 
+
+\begin{figure}[!htbp]
+\centering % this centers the figure
+\includegraphics[width = 0.8\hsize]{./figures/reg_0_001.png} % this includes the figure and specifies that it should span 0.7 times the horizontal size of the page
+\caption{Regularization: 0.001. \textbf{Top}: Training loss vs number of iterations, \textbf{Bottom}: Training and Validation accuracy vs epochs} % caption of the figure
+\label{reg0_001}
+\end{figure}
+
+\subsection{Number and size of hidden layers}
+
+Using the optimized parameters, we once again performed training using different network configurations, 2 or 3 hidden layers,  with different combinations of neurons per layer. Our general approach was to reduce the number of neurons for deeper layers of the network since our output layer is of only size 7 (7 emotions), while our input layer is 2304 (all the pixels in an image). In addition, we introduce learning rate decay of 95\% (learning rate is reduced by 5\% in each epoch). The results of the optimization are shown below.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textit{\textbf{Architecture}} & \multicolumn{1}{l|}{\textit{\textbf{Validation Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Train Accuracy (\%)}}} & \multicolumn{1}{l|}{\textit{\textbf{Minimum loss achieved}}} \\ \hline
+{[}512, 256{]}                 & 46.93                                                           & 99.9                                                       & 0.458                                                        \\ \hline
+{[}256,128{]}                  & 42.47                                                           & 98.9                                                       & 0.3287                                                       \\ \hline
+{[}512,512,256{]}              & 44.49                                                           & 97.7                                                       & 0.5950                                                       \\ \hline
+{[}512,256,128{]}              & 45.54                                                           & 99.6                                                       & 0.4841                                                       \\ \hline
+{[}256,128,64{]}               & 41.67                                                           & 0.7                                                        & 0.8411                                                       \\ \hline
+\end{tabular}
+\caption{Hidden layers size}
+\label{layers}
+\end{table}
+
+From table \ref{layers}, we observe that the best validation performance is achieved for the 2 hidden layer NN with 512 and 256 in each of the layers. The validation accuracy is 46.94\%. The 3 hidden layer networks come close to the performance of our best model. \textbf{??}
+
+
+\subsection{Performance of NN on test data}
+
+The NN parameters that are used for this part are the following:
+\begin{itemize}
+\item 2 hidden layers, 512 and 256 neurons respectively
+\item learning rate 0.01 with 0.95 decay
+\item dropout probability 0.01
+\item regularization 0.01
+\item momentum 0.9
+\item batch size 100
+\item epochs 50
+\end{itemize}
+Below we present the performance on the test data of FER2013.
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Emotion} & \multicolumn{1}{l|}{\textbf{Accuracy (\%)}} & \multicolumn{1}{l|}{\textbf{Precision (\%)}} & \multicolumn{1}{l|}{\textbf{Recall (\%)}} & \multicolumn{1}{l|}{\textit{\textbf{F1 (\%)}}} \\ \hline
+0                & 82.25                                       & 33.0                                         & 35.33                                     & 34.12                                          \\ \hline
+1                & 98.55                                       & 54.76                                        & 41.07                                     & 46.94                                          \\ \hline
+2                & 82.17                                       & 34.87                                        & 33.47                                     & 34.16                                          \\ \hline
+3                & 80.33                                       & 59.89                                        & 63.91                                     & 61.84                                          \\ \hline
+4                & 78.54                                       & 39.38                                        & 33.23                                     & 36.05                                          \\ \hline
+5                & 91.53                                       & 63.70                                        & 62.17                                     & 62.93                                          \\ \hline
+6                & 78.96                                       & 38.78                                        & 42.17                                     & 40.41                                          \\ \hline
+\end{tabular}
+\caption{Performance of network for each emotion}
+\label{performance}
+\end{table}
+The accuracy per emotion is very high, but this does not indicate that the model performs well, since the amount of positive examples in each binary classification (per emotion) is a lot less than the negative examples (all other emotions), and thus the accuracy is high since we are just predicting the negative examples correctly. The f1 score is a much better indicator of the performance of the model for each individual emotion, and thus emotions 3 and 5 are modelled the best. 
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+                     & \multicolumn{1}{l|}{\textit{\textbf{P0}}} & \multicolumn{1}{l|}{\textit{\textbf{P1}}} & \multicolumn{1}{l|}{\textit{\textbf{P2}}} & \multicolumn{1}{l|}{\textit{\textbf{P3}}} & \multicolumn{1}{l|}{\textit{\textbf{P4}}} & \multicolumn{1}{l|}{\textit{\textbf{P5}}} & \multicolumn{1}{l|}{\textit{\textbf{P6}}} \\ \hline
+\textit{\textbf{A0}} & 165                                       & 1                                         & 61                                        & 86                                        & 81                                        & 17                                        & 56                                        \\ \hline
+\textit{\textbf{A1}} & 8                                         & 23                                        & 4                                         & 6                                         & 8                                         & 1                                         & 6                                         \\ \hline
+\textit{\textbf{A2}} & 70                                        & 5                                         & 166                                       & 59                                        & 71                                        & 41                                        & 84                                        \\ \hline
+\textit{\textbf{A3}} & 70                                        & 5                                         & 46                                        & 572                                       & 69                                        & 27                                        & 106                                       \\ \hline
+\textit{\textbf{A4}} & 86                                        & 5                                         & 90                                        & 106                                       & 217                                       & 30                                        & 119                                       \\ \hline
+\textit{\textbf{A5}} & 32                                        & 0                                         & 43                                        & 30                                        & 19                                        & 258                                       & 33                                        \\ \hline
+\textit{\textbf{A6}} & 69                                        & 3                                         & 66                                        & 96                                        & 86                                        & 31                                        & 256                                       \\ \hline
+\end{tabular}
+\caption{Confusion matrix of the test data}
+\label{confusion}
+\end{table}
+
+Overall classification rate for all emotions is 46.17\%.
+
+\section{Question 6}
+For this task we used Tensorflow. The CNN model we submit consists of 4 blocks of 3 convolutional layers (3x3 kernels) followed by max pooling, which are then followed by 2 fully connected layers. We used small 3x3 filters inspired by the VGG architecture that has performed very well in recent years. The stride and padding are selected so that the convolution layer does not modify the size of the features. After each pooling layer we reduce the width and height of the features by a half and double the number of features, effectively halving the total dimensions. We selected a deep convolutional architecture that allows for relatively small size of fully connected layers at the end. The architecture is described in greater detail below:  
 
 \begin{itemize}
 \item input layer of dimensions Nx48x48x1 (batch size x image width x image height x number of channels)
@@ -180,32 +334,30 @@ For this task we used Tensorflow. The CNN model we submit consists of 4 blocks o
 Taking advantage of the Tensorflow implementations, we used the Adam optimizer with a learning rate of $0.005$ and default parameters $beta1=0.9$ $beta2=0.999$. Adam was presented in [4] and is a first-order gradient-based optimization that includes adaptive momentum and learning rates. \\
 
 
-The other two networks we used are variants of ResNet presnted in [1], [2], specifically the 50-layer and the 101-layer bottleneck networks. Residual networks are one of the most significant advances in terms of convolutional neural network architecture over the last decade. They use what the authors call skip connections between layers that pass identity mappings between the layers they connect. As a result the convolutional layers between skip connections have to model the residual function which is an easier task for the model. This architecture option results in more efficient backpropagation and the capacity to train far deeper models that was though achievable before. Our residual networks perfrormed better however due to size limitations we were not able to submit a trained model. 
+The other two networks we used are variants of ResNet presented in [1], [2], specifically the 50-layer and the 101-layer bottleneck networks. Residual networks are one of the most significant advances in terms of convolutional neural network architecture over the last decade. They use what the authors call skip connections between layers that pass identity mappings between the layers they connect. As a result the convolutional layers between skip connections have to model the residual function which is an easier task for the model. This architecture option results in more efficient backpropagation and the capacity to train far deeper models that was though achievable before. Our residual networks performed better however due to size limitations we were not able to submit a trained model.
 
+\section{Additional questions}
 
-
-\newpage
-\section{A1}
+\subsection{A1}
 We could not claim one to be a better algorithm than the other in general for the following reasons stemming from the fact that the two methods are very different qualitatively:
 \begin{itemize}
 \item neural networks can be seen as black box function approximators while trees are highly interpretable. In cases where interpretability is crucial we could not use neural networks
-\item fitting and doing inference with the two models scales differently depending on the software and hardware architecture used. The computing architecture of today might allow one model to be run more efficiently and outperform the other but that will not necessarily hold for tommorow's architectures
+\item fitting and doing inference with the two models scales differently depending on the software and hardware architecture used. The computing architecture of today might allow one model to be run more efficiently and outperform the other but that will not necessarily hold for future architectures
 \end{itemize}
 Finally, the no free lunch theorem of [3] states that no apriori distinctions can be made between any two learning algorithms. that is to say that while the inductive principle used by one model might allow it to overperform another at a given problem, when examined under the scope of all possible problems, any two learning algorithms are equivalent.
 
 
-\section{A2}
+\subsection{A2}
 
-For the classifcation trees, we will need to retrain the whole model as the addition of one class, because the space previously occupied by some classes wil need to be assigned to the new class.\\
+For the classification trees, we will need to retrain the whole model as the addition of one class, because the space previously occupied by some classes wil need to be assigned to the new class.\\
 
-For the case of neural networks a step we would definitely need to take is to add another node at the output layer of th enetwork allowing the classification of $n+1$ classes where the previous network was capable of classifying $n$ classes. We will need to initialize the wieghts and bias connecting the new node with the last layer and we will need to train at least the last layer of the network. most possibly we will need to retrain the other layers but the previously trained network will provide a good initialization, so we will not need to start from scratch.
+For the case of neural networks a step we would definitely need to take is to add another node at the output layer of the network allowing the classification of $n+1$ classes where the previous network was capable of classifying $n$ classes. We will need to initialize the weights and bias connecting the new node with the last hidden layer and we will need to train at least the last layer of the network. Most possibly we will need to retrain the other layers but the previously trained network will provide a good initialization, so we will not need to start from scratch.
 
 
 \newpage
 \section{Instructions for executing}
 All code was written in Python3. All scripts were tested and run in the DOC Lab environment. To run the submitted scripts open a terminal window in the project directory and follow the instructions below.\\
 
-\newpage
 \section{References}
 
 \begin{verbatim}
@@ -219,6 +371,8 @@ All code was written in Python3. All scripts were tested and run in the DOC Lab 
 
 [4] Diederik P. Kingma, Jimmy Ba, " Adam: A Method for Stochastic Optimization", arXiv:1412.6980
 \end{verbatim}
+
+
 
 
 \end{document}
