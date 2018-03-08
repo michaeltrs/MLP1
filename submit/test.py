@@ -37,11 +37,13 @@ def test_fer_model(img_folder, model):
 
 if __name__ == '__main__':
     
+    # USER INPUT - START -------------------------------------------------- #
     #Enter the directories of the folder with the test images
     img_folder = '/media/dk813/EA3F-222E/395/CW2_data/FER2013/Test'
     
     #Enter the directory of the trained NN. The default location is below.
     model='pickles/net.pickle'
+    # USER INPUT - END----------------------------------------------------- #
     preds = test_fer_model(img_folder,model)
 
 
