@@ -3,7 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-def test_fer_model(img_folder='/media/dk813/EA3F-222E/395/CW2_data/FER2013/Test',model='pickles/net.pickle'):
+def test_fer_model(img_folder, model):
     '''Function to import the test images and load the trained neural network
        
        Arguments: img_folder: path to directory of the test images
@@ -36,7 +36,13 @@ def test_fer_model(img_folder='/media/dk813/EA3F-222E/395/CW2_data/FER2013/Test'
 
 
 if __name__ == '__main__':
-    preds = test_fer_model()
+    
+    #Enter the directories of the folder with the test images
+    img_folder = '/media/dk813/EA3F-222E/395/CW2_data/FER2013/Test'
+    
+    #Enter the directory of the trained NN. The default location is below.
+    model='pickles/net.pickle'
+    preds = test_fer_model(img_folder,model)
 
 
 
